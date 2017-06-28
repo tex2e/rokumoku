@@ -16,14 +16,8 @@
 #define GOBAN_SCREEN_HEIGHT 20
 #define GOBAN_SCREEN_WIDTH  40
 
-typedef struct {
-    int x, y;
-} POSITION;
-
-static POSITION me, peer;
-
-static char goban_my_stone;
-static char goban_peer_stone;
+static char goban_my_stone = 'o';
+static char goban_peer_stone = 'x';
 
 static char goban_plane[GOBAN_SCREEN_HEIGHT][GOBAN_SCREEN_WIDTH] = {
     ". . . . . . . . . . . . . . . . . . . . ",
@@ -73,22 +67,22 @@ void session_init(int soc)
     // frame_send = newwin(SEND_WIN_HEIGHT + 2, SEND_WIN_WIDTH + 2, 21, 0);
     win_send = newwin(SEND_WIN_HEIGHT, SEND_WIN_WIDTH, 22, 1);
     // box(frame_send, '|', '-');
-    scrollok(win_send, TRUE);
+    scrollok(win_send, FALSE);
     wmove(win_send, 0, 0);
 
     frame_recv = newwin(GOBAN_SCREEN_HEIGHT + 2, GOBAN_SCREEN_WIDTH + 2, 0, 0);
     win_recv = newwin(GOBAN_SCREEN_HEIGHT, GOBAN_SCREEN_WIDTH, 1, 1);
     box(frame_recv, '|', '-');
-    scrollok(win_recv, TRUE);
+    scrollok(win_recv, FALSE);
     wmove(win_recv, 0, 0);
 
     cbreak();
     noecho();
 
-    wrefresh(frame_recv);
-    wrefresh(win_recv);
     wrefresh(frame_send);
     wrefresh(win_send);
+    wrefresh(frame_recv);
+    wrefresh(win_recv);
 }
 
 void session_loop()
@@ -114,23 +108,23 @@ void session_loop()
             //         continue;
             //     }
             //     len--;
-            //     // getyx(win_send, y, x);
-            //     // wmove(win_send, y, x-1);
-            //     // waddch(win_send, ' ');
-            //     // wmove(win_send, y, x-1);
+            //     getyx(win_send, y, x);
+            //     wmove(win_send, y, x-1);
+            //     waddch(win_send, ' ');
+            //     wmove(win_send, y, x-1);
             // }
             // else if (c == '\n' || c == '\r') {
             //     send_buf[len++] = '\n';
             //     write(session_soc, send_buf, len);
             //
-            //     // wclear(win_send);
+            //     wclear(win_send);
             //     len = 0;
             // }
             // else {
             //     send_buf[len++] = c;
-            //     // waddch(win_send, c);
+            //     waddch(win_send, c);
             // }
-            // // wrefresh(win_send);
+            // wrefresh(win_send);
 
             // TODO: puts stone and write to socket
             // getchar() -> hjkl -> move cursor
@@ -139,13 +133,42 @@ void session_loop()
             // wmove(win_recv, x, y);
             // waddch(win_recv, 'o' or 'x');
             // write(session_soc, send_buf, len);
+
+            c = getchar();
+            getyx(win_recv, y, x);
+            switch (c) {
+            case 'j':
+                wmove(win_recv, y+1, x);
+                break;
+            case 'k':
+                wmove(win_recv, y-1, x);
+                break;
+            case 'h':
+                wmove(win_recv, y, x-2);
+                break;
+            case 'l':
+                wmove(win_recv, y, x+2);
+                break;
+            case ' ':
+                // TODO: puts stone
+                sprintf(send_buf, "(%d,%d)\n", y, x);
+                write(session_soc, send_buf, strlen(send_buf));
+                break;
+            case 'q':
+                sprintf(send_buf, "quit\n");
+                write(session_soc, send_buf, strlen(send_buf));
+                break;
+            }
+            wrefresh(win_send);
+            wrefresh(win_recv);
         }
 
         if (FD_ISSET(session_soc, &readOk)) {
             n = read(session_soc, recv_buf, BUF_LEN);
-            // for (i = 0; i < n; i++) {
-            //     waddch(win_recv, recv_buf[i]);
-            // }
+            werase(win_send);
+            for (i = 0; i < n; i++) {
+                waddch(win_send, recv_buf[i]);
+            }
 
             // TODO: puts stone
             // x, y := scanf("%d %d\n")
@@ -155,9 +178,8 @@ void session_loop()
             if (strstr(recv_buf, "quit") != NULL) {
                 flag = 0;
             }
-            wrefresh(win_recv);
-
             wrefresh(win_send);
+            wrefresh(win_recv);
         }
 
         if (flag == 0) break;

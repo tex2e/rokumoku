@@ -26,20 +26,24 @@ void enter(int i, int fd)
 {
     int len;
     // static char *mesg1 = "Type your name.\n";
-    static char *mesg2 = "Wait.\n";
+    static char *mesg = "Wait.\n";
 
     p[i].fd = fd;
     // memset(p[i].name, 0, 16);
     // write(fd, mesg1, strlen(mesg1));
     // len = read(fd, p[i].name, 16);
     // sprintf(p[i].name + len - 1, "  -->  ");
-    write(fd, mesg2, strlen(mesg2));
+
+    // Send "Wait." to player who is first entered room.
+    if (i == 0) {
+        write(fd, mesg, strlen(mesg));
+    }
 }
 
 void sessionman_init(int num, int maxfd)
 {
     int i;
-    // static char *mesg = "Communication Ready.\n";
+    static char *mesg = "Game Start.\n";
     attendants = num;
 
     width = maxfd + 1;
@@ -49,9 +53,9 @@ void sessionman_init(int num, int maxfd)
         FD_SET(p[i].fd, &mask);
     }
 
-    // for (i = 0; i < num; i++) {
-    //     write(p[i].fd, mesg, strlen(mesg));
-    // }
+    for (i = 0; i < num; i++) {
+        write(p[i].fd, mesg, strlen(mesg));
+    }
 }
 
 void sessionman_loop()

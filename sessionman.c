@@ -25,14 +25,9 @@ static void ending();
 void enter(int i, int fd)
 {
     int len;
-    // static char *mesg1 = "Type your name.\n";
     static char *mesg = "Wait.\n";
 
     p[i].fd = fd;
-    // memset(p[i].name, 0, 16);
-    // write(fd, mesg1, strlen(mesg1));
-    // len = read(fd, p[i].name, 16);
-    // sprintf(p[i].name + len - 1, "  -->  ");
 
     // Send "Wait." to player who is first entered room.
     if (i == 0) {
@@ -100,7 +95,6 @@ static void send_all(int i, int n)
 {
     int j;
     for (j = 0; j < attendants; j++) {
-        // write(p[j].fd, p[i].name, strlen(p[i].name));
         write(p[j].fd, buf, n);
     }
 }

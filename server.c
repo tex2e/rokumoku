@@ -8,17 +8,7 @@ int main(int argc, char const *argv[]) {
     int soc;
     int maxfd;
 
-    // if (argc != 2) {
-    //     fprintf(stderr, "Usage: s  attendants\n");
-    //     exit(1);
-    // }
-    //
-    // if ((num = atoi(argv[1])) <= 0 || num > MAX_ATTENDANTS) {
-    //     fprintf(stderr, "attendants limit = %d\n", MAX_ATTENDANTS);
-    //     exit(1);
-    // }
-
-    num = 2;
+    num = 2; // player count
 
     if ((soc = mserver_socket(PORT, num)) == -1) {
         fprintf(stderr, "cannot setup server\n");

@@ -165,3 +165,43 @@ static void die()
     close(session_soc);
     exit(0);
 }
+
+static int detect_rokumoku(char stone_char)
+{
+    int cnt = 0;
+    int cnt2 = 0;
+    int i, j, k;
+    for (i = 0; i < GOBAN_SCREEN_HEIGHT; i++) {
+        for (j = 0; j < GOBAN_SCREEN_WIDTH - 1; j += 2) {
+            cnt = (goban_plane[i][j] == stone_char) ? (cnt + 1) : 0;
+            if (cnt == 6) return 1;
+        }
+        cnt = 0;
+    }
+
+    for (i = 0; i < GOBAN_SCREEN_WIDTH - 1; i += 2) {
+        for (j = 0; j < GOBAN_SCREEN_HEIGHT; j++) {
+            cnt = (goban_plane[j][i] == stone_char) ? (cnt + 1) : 0;
+            if (cnt == 6) return 1;
+        }
+        cnt = 0;
+    }
+
+    for (i = 0; i < GOBAN_SCREEN_HEIGHT; i++) {
+        for (j = 0; j < GOBAN_SCREEN_WIDTH - 1; j += 2) {
+            for (k = 0; k < GOBAN_SCREEN_WIDTH / 2 - 1; k++) {
+                if (!(i + k >= 0 && i + k < GOBAN_SCREEN_HEIGHT)) continue;
+                if (!(i + k * 2 < GOBAN_SCREEN_WIDTH - 1)) continue;
+                if (!(GOBAN_SCREEN_WIDTH - 2 - j - k * 2 >= 0)) continue;
+                cnt  = (goban_plane[i + k][j + k * 2] == stone_char) ? (cnt + 1) : 0;
+                cnt2 = (goban_plane[i + k][GOBAN_SCREEN_WIDTH - 2 - j - k * 2] == stone_char) ? (cnt2 + 1) : 0;
+                if (cnt == 6) return 1;
+                if (cnt2 == 6) return 1;
+            }
+            cnt = 0;
+            cnt2 = 0;
+        }
+    }
+
+    return 0;
+}

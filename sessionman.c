@@ -13,7 +13,7 @@ static int attendants;
 
 typedef struct {
     int fd;
-    char name[16];
+    // char name[16];
 } ATTENDANT;
 
 static ATTENDANT p[MAX_ATTENDANTS];
@@ -24,21 +24,21 @@ static void ending();
 void enter(int i, int fd)
 {
     int len;
-    static char *mesg1 = "Type your name.\n";
+    // static char *mesg1 = "Type your name.\n";
     static char *mesg2 = "Wait.\n";
 
     p[i].fd = fd;
-    memset(p[i].name, 0, 16);
-    write(fd, mesg1, strlen(mesg1));
-    len = read(fd, p[i].name, 16);
-    sprintf(p[i].name + len - 1, "  -->  ");
+    // memset(p[i].name, 0, 16);
+    // write(fd, mesg1, strlen(mesg1));
+    // len = read(fd, p[i].name, 16);
+    // sprintf(p[i].name + len - 1, "  -->  ");
     write(fd, mesg2, strlen(mesg2));
 }
 
 void sessionman_init(int num, int maxfd)
 {
     int i;
-    static char *mesg = "Communication Ready.\n";
+    // static char *mesg = "Communication Ready.\n";
     attendants = num;
 
     width = maxfd + 1;
@@ -48,9 +48,9 @@ void sessionman_init(int num, int maxfd)
         FD_SET(p[i].fd, &mask);
     }
 
-    for (i = 0; i < num; i++) {
-        write(p[i].fd, mesg, strlen(mesg));
-    }
+    // for (i = 0; i < num; i++) {
+    //     write(p[i].fd, mesg, strlen(mesg));
+    // }
 }
 
 void sessionman_loop()
@@ -95,7 +95,7 @@ static void send_all(int i, int n)
 {
     int j;
     for (j = 0; j < attendants; j++) {
-        write(p[j].fd, p[i].name, strlen(p[i].name));
+        // write(p[j].fd, p[i].name, strlen(p[i].name));
         write(p[j].fd, buf, n);
     }
 }

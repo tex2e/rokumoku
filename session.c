@@ -16,6 +16,12 @@
 #define GOBAN_SCREEN_HEIGHT 20
 #define GOBAN_SCREEN_WIDTH  40
 
+typedef struct {
+    int x, y;
+} POSITION;
+
+static POSITION me, peer;
+
 static char goban_my_stone;
 static char goban_peer_stone;
 
@@ -64,14 +70,14 @@ void session_init(int soc)
     initscr();
     signal(SIGINT, die);
 
-    // frame_send = newwin(SEND_WIN_HEIGHT + 2, SEND_WIN_WIDTH + 2, 18, 0);
-    // win_send = newwin(SEND_WIN_HEIGHT, SEND_WIN_WIDTH, 19, 1);
+    // frame_send = newwin(SEND_WIN_HEIGHT + 2, SEND_WIN_WIDTH + 2, 21, 0);
+    win_send = newwin(SEND_WIN_HEIGHT, SEND_WIN_WIDTH, 22, 1);
     // box(frame_send, '|', '-');
-    // scrollok(win_send, TRUE);
-    // wmove(win_send, 0, 0);
+    scrollok(win_send, TRUE);
+    wmove(win_send, 0, 0);
 
-    frame_recv = newwin(RECV_WIN_HEIGHT + 2, RECV_WIN_WIDTH + 2, 0, 0);
-    win_recv = newwin(RECV_WIN_HEIGHT, RECV_WIN_WIDTH, 1, 1);
+    frame_recv = newwin(GOBAN_SCREEN_HEIGHT + 2, GOBAN_SCREEN_WIDTH + 2, 0, 0);
+    win_recv = newwin(GOBAN_SCREEN_HEIGHT, GOBAN_SCREEN_WIDTH, 1, 1);
     box(frame_recv, '|', '-');
     scrollok(win_recv, TRUE);
     wmove(win_recv, 0, 0);
@@ -81,8 +87,8 @@ void session_init(int soc)
 
     wrefresh(frame_recv);
     wrefresh(win_recv);
-    // wrefresh(frame_send);
-    // wrefresh(win_send);
+    wrefresh(frame_send);
+    wrefresh(win_send);
 }
 
 void session_loop()
@@ -100,38 +106,51 @@ void session_loop()
         select(width, (fd_set *)&readOk, NULL, NULL, NULL);
 
         if (FD_ISSET(0, &readOk)) {
-            c = getchar();
+            // c = getchar();
+            //
+            // // backspace
+            // if (c == '\b' || c == 0x10 || c == 0x7F) {
+            //     if (len == 0) {
+            //         continue;
+            //     }
+            //     len--;
+            //     // getyx(win_send, y, x);
+            //     // wmove(win_send, y, x-1);
+            //     // waddch(win_send, ' ');
+            //     // wmove(win_send, y, x-1);
+            // }
+            // else if (c == '\n' || c == '\r') {
+            //     send_buf[len++] = '\n';
+            //     write(session_soc, send_buf, len);
+            //
+            //     // wclear(win_send);
+            //     len = 0;
+            // }
+            // else {
+            //     send_buf[len++] = c;
+            //     // waddch(win_send, c);
+            // }
+            // // wrefresh(win_send);
 
-            // backspace
-            if (c == '\b' || c == 0x10 || c == 0x7F) {
-                if (len == 0) {
-                    continue;
-                }
-                len--;
-                getyx(win_send, y, x);
-                wmove(win_send, y, x-1);
-                waddch(win_send, ' ');
-                wmove(win_send, y, x-1);
-            }
-            else if (c == '\n' || c == '\r') {
-                send_buf[len++] = '\n';
-                write(session_soc, send_buf, len);
-
-                wclear(win_send);
-                len = 0;
-            }
-            else {
-                send_buf[len++] = c;
-                waddch(win_send, c);
-            }
-            wrefresh(win_send);
+            // TODO: puts stone and write to socket
+            // getchar() -> hjkl -> move cursor
+            // getchar() -> space -> put stone
+            // send_buf := "%d %d\n".format(x, y)
+            // wmove(win_recv, x, y);
+            // waddch(win_recv, 'o' or 'x');
+            // write(session_soc, send_buf, len);
         }
 
         if (FD_ISSET(session_soc, &readOk)) {
             n = read(session_soc, recv_buf, BUF_LEN);
-            for (i = 0; i < n; i++) {
-                waddch(win_recv, recv_buf[i]);
-            }
+            // for (i = 0; i < n; i++) {
+            //     waddch(win_recv, recv_buf[i]);
+            // }
+
+            // TODO: puts stone
+            // x, y := scanf("%d %d\n")
+            // wmove(win_recv, x, y);
+            // waddch(win_recv, 'o' or 'x');
 
             if (strstr(recv_buf, "quit") != NULL) {
                 flag = 0;

@@ -12,6 +12,35 @@
 #define RECV_WIN_WIDTH  60
 #define RECV_WIN_HEIGHT 13
 
+#define GOBAN_SCREEN_HEIGHT 20
+#define GOBAN_SCREEN_WIDTH  40
+
+static char goban_my_stone;
+static char goban_peer_stone;
+
+static char goban_plane[GOBAN_SCREEN_HEIGHT][GOBAN_SCREEN_WIDTH] = {
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . ",
+    ". . . . . . . . . . . . . . . . . . . . "
+};
+
 static WINDOW *win_send, *win_recv;
 static WINDOW *frame_send, *frame_recv;
 
@@ -34,11 +63,11 @@ void session_init(int soc)
     initscr();
     signal(SIGINT, die);
 
-    frame_send = newwin(SEND_WIN_HEIGHT + 2, SEND_WIN_WIDTH + 2, 18, 0);
-    win_send = newwin(SEND_WIN_HEIGHT, SEND_WIN_WIDTH, 19, 1);
-    box(frame_send, '|', '-');
-    scrollok(win_send, TRUE);
-    wmove(win_send, 0, 0);
+    // frame_send = newwin(SEND_WIN_HEIGHT + 2, SEND_WIN_WIDTH + 2, 18, 0);
+    // win_send = newwin(SEND_WIN_HEIGHT, SEND_WIN_WIDTH, 19, 1);
+    // box(frame_send, '|', '-');
+    // scrollok(win_send, TRUE);
+    // wmove(win_send, 0, 0);
 
     frame_recv = newwin(RECV_WIN_HEIGHT + 2, RECV_WIN_WIDTH + 2, 0, 0);
     win_recv = newwin(RECV_WIN_HEIGHT, RECV_WIN_WIDTH, 1, 1);
@@ -51,8 +80,8 @@ void session_init(int soc)
 
     wrefresh(frame_recv);
     wrefresh(win_recv);
-    wrefresh(frame_send);
-    wrefresh(win_send);
+    // wrefresh(frame_send);
+    // wrefresh(win_send);
 }
 
 void session_loop()

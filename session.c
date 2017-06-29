@@ -50,6 +50,7 @@ static fd_set mask;
 static int width;
 
 static void init_goban();
+static int is_my_turn(int, char);
 static int put_stone(int, int, char);
 static void die();
 static int detect_rokumoku(char);
@@ -95,9 +96,11 @@ void session_loop()
     fd_set readOk;
     int i;
     int y, x;
+    char message[BUF_LEN];
     int status;
     int is_game_loop   = 1;
     int is_game_finish = 0;
+    int game_step = 0;
 
     while (1) {
         readOk = mask;
@@ -121,6 +124,7 @@ void session_loop()
                 break;
             case ' ':
                 if (is_game_finish) break;
+                if (!is_my_turn(game_step, goban_my_stone)) break;
                 if (!put_stone(y, x, goban_my_stone)) break;
 
                 sprintf(send_buf, "(%d,%d) %c\n", x, y, goban_my_stone);
@@ -150,11 +154,13 @@ void session_loop()
                 if (id == 0) {
                     goban_my_stone = 'x';
                     goban_peer_stone = 'o';
+                    strcpy(message, "Wait.");
                 } else {
                     goban_my_stone = 'o';
                     goban_peer_stone = 'x';
+                    strcpy(message, "It's your turn!");
                 }
-                sprintf(recv_buf, "Game start! (your stone: %c)\n", goban_my_stone);
+                sprintf(recv_buf, "Game start! %s\n", message);
                 werase(win_info);
                 waddstr(win_info, recv_buf);
             }
@@ -163,8 +169,14 @@ void session_loop()
                 char stone_char;
                 sscanf(recv_buf, "(%d,%d) %c", &x, &y, &stone_char);
                 put_stone(y, x, stone_char);
+                game_step++;
+                if ((status = is_my_turn(game_step, goban_my_stone)) > 0) {
+                    sprintf(message, "It's your turn! (remains: %d)\n", status);
+                } else {
+                    sprintf(message, "%s\n", "Wait");
+                }
                 werase(win_info);
-                waddstr(win_info, recv_buf);
+                waddstr(win_info, message);
 
                 if (stone_char == goban_my_stone && detect_rokumoku(stone_char)) {
                     werase(win_info);
@@ -180,8 +192,14 @@ void session_loop()
             else if (strstr(recv_buf, "reset") != NULL) {
                 // Reset game.
                 init_goban();
+                game_step = 0;
                 is_game_finish = 0;
-                sprintf(recv_buf, "%s\n", "Game start!");
+                if (goban_my_stone == 'x') {
+                    strcpy(message, "Wait.");
+                } else {
+                    strcpy(message, "It's your turn!");
+                }
+                sprintf(recv_buf, "Game start! %s\n", message);
                 werase(win_info);
                 waddstr(win_info, recv_buf);
             }
@@ -217,6 +235,22 @@ static void init_goban()
         waddstr(win_goban, goban_plane[y]);
     }
     wmove(win_goban, GOBAN_SCREEN_HEIGHT/2, GOBAN_SCREEN_WIDTH/2);
+}
+
+// Return true if it's my turn.
+// game_step: 0 1 2 3 4 5 6 7 8 9 10 ...
+// stone:     o x x o o x x o o x x  ...
+static int is_my_turn(int game_step, char stone_char)
+{
+    int mod;
+    if (stone_char == 'o' && game_step == 0) return 1;
+    if (stone_char == 'x' && game_step == 0) return 0;
+    mod = (game_step - 1) % 4;
+    if (stone_char == 'o' && mod == 2) return 2;
+    if (stone_char == 'o' && mod == 3) return 1;
+    if (stone_char == 'x' && mod == 0) return 2;
+    if (stone_char == 'x' && mod == 1) return 1;
+    return 0;
 }
 
 static int put_stone(int y, int x, char stone_char)

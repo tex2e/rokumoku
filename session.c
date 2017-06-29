@@ -50,6 +50,7 @@ static int width;
 
 static int put_stone(int, int, char);
 static void die();
+static int detect_rokumoku(char);
 
 void session_init(int soc)
 {
@@ -101,6 +102,7 @@ void session_loop()
     int i;
     int y, x;
     int n;
+    int is_game_finish = 0;
 
     while (1) {
         readOk = mask;
@@ -123,10 +125,12 @@ void session_loop()
                 wmove(win_goban, y, x+2);
                 break;
             case ' ':
+                if (is_game_finish) break;
                 put_stone(y, x, goban_my_stone);
 
                 sprintf(send_buf, "(%d,%d) %c\n", x, y, goban_my_stone);
                 write(session_soc, send_buf, strlen(send_buf));
+
                 break;
             case 'q':
                 sprintf(send_buf, "quit\n");
@@ -156,12 +160,23 @@ void session_loop()
                 waddstr(win_info, recv_buf);
             }
             else if (recv_buf[0] == '(') {
-                // Opponent put stone.
+                // Player put stone.
                 char stone_char;
                 sscanf(recv_buf, "(%d,%d) %c", &x, &y, &stone_char);
                 put_stone(y, x, stone_char);
                 werase(win_info);
                 waddstr(win_info, recv_buf);
+
+                if (stone_char == goban_my_stone && detect_rokumoku(stone_char)) {
+                    werase(win_info);
+                    waddstr(win_info, "You win!");
+                    is_game_finish = 1;
+                }
+                if (stone_char == goban_peer_stone && detect_rokumoku(stone_char)) {
+                    werase(win_info);
+                    waddstr(win_info, "You lose!");
+                    is_game_finish = 1;
+                }
             }
             else {
                 // Received broadcast message.

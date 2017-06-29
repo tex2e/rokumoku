@@ -255,10 +255,8 @@ static int is_my_turn(int game_step, char stone_char)
 
 static int put_stone(int y, int x, char stone_char)
 {
-    int plane_x = x * 2;
-    int plane_y = y;
-    if (goban_plane[plane_y][plane_x] != '.') return 0;
-    goban_plane[plane_y][plane_x] = stone_char;
+    if (goban_plane[y][x] != '.') return 0;
+    goban_plane[y][x] = stone_char;
 
     wmove(win_goban, y, x);
     waddch(win_goban, stone_char);

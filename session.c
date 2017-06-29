@@ -126,7 +126,7 @@ void session_loop()
                 break;
             case ' ':
                 if (is_game_finish) break;
-                put_stone(y, x, goban_my_stone);
+                if (!put_stone(y, x, goban_my_stone)) break;
 
                 sprintf(send_buf, "(%d,%d) %c\n", x, y, goban_my_stone);
                 write(session_soc, send_buf, strlen(send_buf));
@@ -201,11 +201,13 @@ static int put_stone(int y, int x, char stone_char)
 {
     int plane_x = x * 2;
     int plane_y = y;
+    if (goban_plane[plane_y][plane_x] != '.') return 0;
     goban_plane[plane_y][plane_x] = stone_char;
 
     wmove(win_goban, y, x);
     waddch(win_goban, stone_char);
     wmove(win_goban, y, x);
+    return 1;
 }
 
 static void die()

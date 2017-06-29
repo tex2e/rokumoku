@@ -13,8 +13,8 @@
 #define GOBAN_SCREEN_HEIGHT 20
 #define GOBAN_SCREEN_WIDTH  40
 
-static char goban_my_stone = 'o';
-static char goban_peer_stone = 'x';
+static char goban_my_stone;
+static char goban_peer_stone;
 
 static char goban_plane[GOBAN_SCREEN_HEIGHT][GOBAN_SCREEN_WIDTH] = {
     ". . . . . . . . . . . . . . . . . . . . ",
@@ -48,10 +48,12 @@ static int session_soc;
 static fd_set mask;
 static int width;
 
+static int put_stone(int, int, char);
 static void die();
 
 void session_init(int soc)
 {
+    int x, y;
     session_soc = soc;
     width = soc + 1;
     FD_ZERO(&mask);
@@ -75,6 +77,14 @@ void session_init(int soc)
 
     cbreak();
     noecho();
+
+    // Init goban
+    x = 0;
+    for (y = 0; y < GOBAN_SCREEN_HEIGHT; y++) {
+        wmove(win_goban, y, x);
+        waddstr(win_goban, goban_plane[y]);
+    }
+    wmove(win_goban, GOBAN_SCREEN_HEIGHT/2, GOBAN_SCREEN_WIDTH/2);
 
     wrefresh(frame_info);
     wrefresh(win_info);
@@ -121,8 +131,9 @@ void session_loop()
                 wmove(win_goban, y, x+2);
                 break;
             case ' ':
-                // TODO: puts stone
-                sprintf(send_buf, "(%d,%d)\n", y, x);
+                put_stone(y, x, goban_my_stone);
+
+                sprintf(send_buf, "(%d,%d) %c\n", x, y, goban_my_stone);
                 write(session_soc, send_buf, strlen(send_buf));
                 break;
             case 'q':
@@ -136,15 +147,33 @@ void session_loop()
 
         if (FD_ISSET(session_soc, &readOk)) {
             n = read(session_soc, recv_buf, BUF_LEN);
-            werase(win_info);
-            for (i = 0; i < n; i++) {
-                waddch(win_info, recv_buf[i]);
+            if (recv_buf[0] == ':') {
+                // Game start!
+                int id;
+                char message[BUF_LEN];
+                sscanf(recv_buf, ":%d %s", &id, message);
+                if (id == 0) {
+                    goban_my_stone = 'x';
+                    goban_peer_stone = 'o';
+                } else {
+                    goban_my_stone = 'o';
+                    goban_peer_stone = 'x';
+                }
+                sprintf(recv_buf, "%s (your stone: %c)\n", message, goban_my_stone);
+                werase(win_info);
+                waddstr(win_info, recv_buf);
             }
-
-            // TODO: puts stone
-            // x, y := scanf("%d %d\n")
-            // wmove(win_goban, x, y);
-            // waddch(win_goban, 'o' or 'x');
+            else if (recv_buf[0] == '(') {
+                char stone_char;
+                sscanf(recv_buf, "(%d,%d) %c", &x, &y, &stone_char);
+                put_stone(y, x, stone_char);
+                werase(win_info);
+                waddstr(win_info, recv_buf);
+            }
+            else {
+                werase(win_info);
+                waddstr(win_info, recv_buf);
+            }
 
             if (strstr(recv_buf, "quit") != NULL) {
                 flag = 0;
@@ -157,6 +186,17 @@ void session_loop()
     }
 
     die();
+}
+
+static int put_stone(int y, int x, char stone_char)
+{
+    int plane_x = x * 2;
+    int plane_y = y;
+    goban_plane[plane_y][plane_x] = stone_char;
+
+    wmove(win_goban, y, x);
+    waddch(win_goban, stone_char);
+    wmove(win_goban, y, x);
 }
 
 static void die()

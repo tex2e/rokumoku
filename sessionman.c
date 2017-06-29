@@ -38,7 +38,8 @@ void enter(int i, int fd)
 void sessionman_init(int num, int maxfd)
 {
     int i;
-    static char *mesg = "Game Start.\n";
+    // static char *mesg = "Game Start.\n";
+    char message[20];
     attendants = num;
 
     width = maxfd + 1;
@@ -49,7 +50,8 @@ void sessionman_init(int num, int maxfd)
     }
 
     for (i = 0; i < num; i++) {
-        write(p[i].fd, mesg, strlen(mesg));
+        sprintf(message, ":%d Game Start.\n", i);
+        write(p[i].fd, message, strlen(message));
     }
 }
 

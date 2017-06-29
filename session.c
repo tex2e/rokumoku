@@ -107,14 +107,6 @@ void session_loop()
         select(width, (fd_set *)&readOk, NULL, NULL, NULL);
 
         if (FD_ISSET(0, &readOk)) {
-            // TODO: puts stone and write to socket
-            // getchar() -> hjkl -> move cursor
-            // getchar() -> space -> put stone
-            // send_buf := "%d %d\n".format(x, y)
-            // wmove(win_goban, x, y);
-            // waddch(win_goban, 'o' or 'x');
-            // write(session_soc, send_buf, len);
-
             c = getchar();
             getyx(win_goban, y, x);
             switch (c) {
@@ -164,6 +156,7 @@ void session_loop()
                 waddstr(win_info, recv_buf);
             }
             else if (recv_buf[0] == '(') {
+                // Opponent put stone.
                 char stone_char;
                 sscanf(recv_buf, "(%d,%d) %c", &x, &y, &stone_char);
                 put_stone(y, x, stone_char);
@@ -171,6 +164,7 @@ void session_loop()
                 waddstr(win_info, recv_buf);
             }
             else {
+                // Received broadcast message.
                 werase(win_info);
                 waddstr(win_info, recv_buf);
             }

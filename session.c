@@ -277,36 +277,37 @@ static int detect_rokumoku(char stone_char)
 {
     int cnt = 0;
     int cnt2 = 0;
-    int i, j, k;
-    for (i = 0; i < GOBAN_SCREEN_HEIGHT; i++) {
-        for (j = 0; j < GOBAN_SCREEN_WIDTH - 1; j += 2) {
-            cnt = (goban_plane[i][j] == stone_char) ? (cnt + 1) : 0;
+    int x, y;
+    int k;
+    for (y = 0; y < GOBAN_SCREEN_HEIGHT; y++) {
+        cnt = 0;
+        for (x = 0; x < GOBAN_SCREEN_WIDTH - 1; x += 2) {
+            cnt = (goban_plane[y][x] == stone_char) ? (cnt + 1) : 0;
             if (cnt == 6) return 1;
         }
-        cnt = 0;
     }
 
-    for (i = 0; i < GOBAN_SCREEN_WIDTH - 1; i += 2) {
-        for (j = 0; j < GOBAN_SCREEN_HEIGHT; j++) {
-            cnt = (goban_plane[j][i] == stone_char) ? (cnt + 1) : 0;
+    for (x = 0; x < GOBAN_SCREEN_WIDTH - 1; x += 2) {
+        cnt = 0;
+        for (y = 0; y < GOBAN_SCREEN_HEIGHT; y++) {
+            cnt = (goban_plane[y][x] == stone_char) ? (cnt + 1) : 0;
             if (cnt == 6) return 1;
         }
-        cnt = 0;
     }
 
-    for (i = 0; i < GOBAN_SCREEN_HEIGHT; i++) {
-        for (j = 0; j < GOBAN_SCREEN_WIDTH - 1; j += 2) {
+    for (y = 0; y < GOBAN_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < GOBAN_SCREEN_WIDTH - 1; x += 2) {
+            cnt = 0;
+            cnt2 = 0;
             for (k = 0; k < GOBAN_SCREEN_WIDTH / 2 - 1; k++) {
-                if (!(i + k >= 0 && i + k < GOBAN_SCREEN_HEIGHT)) continue;
-                if (!(i + k * 2 < GOBAN_SCREEN_WIDTH - 1)) continue;
-                if (!(GOBAN_SCREEN_WIDTH - 2 - j - k * 2 >= 0)) continue;
-                cnt  = (goban_plane[i + k][j + k * 2] == stone_char) ? (cnt + 1) : 0;
-                cnt2 = (goban_plane[i + k][GOBAN_SCREEN_WIDTH - 2 - j - k * 2] == stone_char) ? (cnt2 + 1) : 0;
+                if (!(y + k >= 0 && y + k < GOBAN_SCREEN_HEIGHT)) continue;
+                if (!(y + k * 2 < GOBAN_SCREEN_WIDTH - 1)) continue;
+                if (!(GOBAN_SCREEN_WIDTH - 2 - x - k * 2 >= 0)) continue;
+                cnt  = (goban_plane[y + k][x + k * 2] == stone_char) ? (cnt + 1) : 0;
+                cnt2 = (goban_plane[y + k][GOBAN_SCREEN_WIDTH - 2 - x - k * 2] == stone_char) ? (cnt2 + 1) : 0;
                 if (cnt == 6) return 1;
                 if (cnt2 == 6) return 1;
             }
-            cnt = 0;
-            cnt2 = 0;
         }
     }
 

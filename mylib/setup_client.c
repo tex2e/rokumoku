@@ -5,7 +5,10 @@ int setup_client(char *hostname, in_port_t port)
     struct hostent *server_ent;
     struct sockaddr_in server;
     int soc;
-    // char hostname[] = "ayu019.l.nagano-nct.ac.jp"; // hostname -A
+
+    if (strlen(hostname) == 0) {
+        strcpy(hostname, "localhost");
+    }
 
     if ((server_ent = gethostbyname(hostname)) == NULL) {
         perror("gethostbyname");

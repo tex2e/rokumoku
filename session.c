@@ -17,27 +17,28 @@ static char goban_my_stone;
 static char goban_peer_stone;
 
 static char goban_plane[GOBAN_SCREEN_HEIGHT][GOBAN_SCREEN_WIDTH] = {
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . ",
-    ". . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . .",
+    ". . . . . . . . . . . . . . . . . . . ."
 };
+static char goban_plane_orig[GOBAN_SCREEN_HEIGHT][GOBAN_SCREEN_WIDTH];
 
 static WINDOW *win_info, *win_goban;
 static WINDOW *frame_info, *frame_goban;
@@ -48,12 +49,14 @@ static int session_soc;
 static fd_set mask;
 static int width;
 
+static void init_goban();
 static int put_stone(int, int, char);
 static void die();
 static int detect_rokumoku(char);
 
 void session_init(int soc)
 {
+    int i;
     int x, y;
     session_soc = soc;
     width = soc + 1;
@@ -79,13 +82,8 @@ void session_init(int soc)
     cbreak();
     noecho();
 
-    // Init goban
-    x = 0;
-    for (y = 0; y < GOBAN_SCREEN_HEIGHT; y++) {
-        wmove(win_goban, y, x);
-        waddstr(win_goban, goban_plane[y]);
-    }
-    wmove(win_goban, GOBAN_SCREEN_HEIGHT/2, GOBAN_SCREEN_WIDTH/2);
+    memcpy(goban_plane_orig, goban_plane, sizeof(goban_plane));
+    init_goban();
 
     wrefresh(frame_info);
     wrefresh(win_info);
@@ -132,6 +130,11 @@ void session_loop()
                 write(session_soc, send_buf, strlen(send_buf));
 
                 break;
+            case 'r':
+            case 'c':
+                sprintf(send_buf, "reset\n");
+                write(session_soc, send_buf, strlen(send_buf));
+                break;
             case 'q':
                 sprintf(send_buf, "quit\n");
                 write(session_soc, send_buf, strlen(send_buf));
@@ -146,8 +149,7 @@ void session_loop()
             if (recv_buf[0] == ':') {
                 // Game start!
                 int id;
-                char message[BUF_LEN];
-                sscanf(recv_buf, ":%d %s", &id, message);
+                sscanf(recv_buf, ":%d", &id);
                 if (id == 0) {
                     goban_my_stone = 'x';
                     goban_peer_stone = 'o';
@@ -155,7 +157,7 @@ void session_loop()
                     goban_my_stone = 'o';
                     goban_peer_stone = 'x';
                 }
-                sprintf(recv_buf, "%s (your stone: %c)\n", message, goban_my_stone);
+                sprintf(recv_buf, "Game start! (your stone: %c)\n", goban_my_stone);
                 werase(win_info);
                 waddstr(win_info, recv_buf);
             }
@@ -178,15 +180,24 @@ void session_loop()
                     is_game_finish = 1;
                 }
             }
+            else if (strstr(recv_buf, "reset") != NULL) {
+                // Reset game.
+                init_goban();
+                is_game_finish = 0;
+                sprintf(recv_buf, "%s\n", "Game start!");
+                werase(win_info);
+                waddstr(win_info, recv_buf);
+            }
+            else if (strstr(recv_buf, "quit") != NULL) {
+                // Quit game.
+                flag = 0;
+            }
             else {
                 // Received broadcast message.
                 werase(win_info);
                 waddstr(win_info, recv_buf);
             }
 
-            if (strstr(recv_buf, "quit") != NULL) {
-                flag = 0;
-            }
             wrefresh(win_info);
             wrefresh(win_goban);
         }
@@ -195,6 +206,21 @@ void session_loop()
     }
 
     die();
+}
+
+static void init_goban()
+{
+    int x, y;
+
+    memcpy(goban_plane, goban_plane_orig, sizeof(goban_plane_orig));
+
+    wclear(win_goban);
+    x = 0;
+    for (y = 0; y < GOBAN_SCREEN_HEIGHT; y++) {
+        wmove(win_goban, y, x);
+        waddstr(win_goban, goban_plane[y]);
+    }
+    wmove(win_goban, GOBAN_SCREEN_HEIGHT/2, GOBAN_SCREEN_WIDTH/2);
 }
 
 static int put_stone(int y, int x, char stone_char)

@@ -67,9 +67,7 @@ void session_init(int soc)
     initscr();
     signal(SIGINT, die);
 
-    // frame_info = newwin(INFO_WIN_HEIGHT + 2, INFO_WIN_WIDTH + 2, 21, 0);
     win_info = newwin(INFO_WIN_HEIGHT, INFO_WIN_WIDTH, 22, 1);
-    // box(frame_info, '|', '-');
     scrollok(win_info, FALSE);
     wmove(win_info, 0, 0);
 
@@ -94,12 +92,11 @@ void session_init(int soc)
 void session_loop()
 {
     int c;
-    int flag = 1;
     fd_set readOk;
-    int len = 0;
     int i;
     int y, x;
-    int n;
+    int status;
+    int is_game_loop   = 1;
     int is_game_finish = 0;
 
     while (1) {
@@ -145,7 +142,7 @@ void session_loop()
         }
 
         if (FD_ISSET(session_soc, &readOk)) {
-            n = read(session_soc, recv_buf, BUF_LEN);
+            status = read(session_soc, recv_buf, BUF_LEN);
             if (recv_buf[0] == ':') {
                 // Game start!
                 int id;
@@ -190,7 +187,7 @@ void session_loop()
             }
             else if (strstr(recv_buf, "quit") != NULL) {
                 // Quit game.
-                flag = 0;
+                is_game_loop = 0;
             }
             else {
                 // Received broadcast message.
@@ -202,7 +199,7 @@ void session_loop()
             wrefresh(win_goban);
         }
 
-        if (flag == 0) break;
+        if (is_game_loop == 0) break;
     }
 
     die();
@@ -211,7 +208,6 @@ void session_loop()
 static void init_goban()
 {
     int x, y;
-
     memcpy(goban_plane, goban_plane_orig, sizeof(goban_plane_orig));
 
     wclear(win_goban);

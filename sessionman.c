@@ -40,6 +40,11 @@ void sessionman_init(int num, int maxfd)
     int i;
     // static char *mesg = "Game Start.\n";
     char message[20];
+    int rnd;
+
+    srandom(time(NULL));
+    rnd = random() % 2;
+
     attendants = num;
 
     width = maxfd + 1;
@@ -49,10 +54,10 @@ void sessionman_init(int num, int maxfd)
         FD_SET(p[i].fd, &mask);
     }
 
-    for (i = 0; i < num; i++) {
-        sprintf(message, ":%d Game Start.\n", i);
-        write(p[i].fd, message, strlen(message));
-    }
+    sprintf(message, ":%d Game Start.\n", rnd);
+    write(p[0].fd, message, strlen(message));
+    sprintf(message, ":%d Game Start.\n", 1 - rnd);
+    write(p[1].fd, message, strlen(message));
 }
 
 void sessionman_loop()

@@ -100,7 +100,7 @@ session.hであるリスト\ref{code:session.h}では、session.cで使用する
 \lstinputlisting[caption=session.h,label=code:session.h]{../session.h}
 
 session.cであるリスト\ref{code:session.c}では、六目並べのゲームの処理とサーバと通信を行う処理を行う。
-58行目のsession\_init関数では、ソケットの初期化と、ゲームのために使用するライブラリncursesの初期化を行う。
+58行目のsession\_init関数ではソケットの初期化と、ゲームのために使用するライブラリncursesの初期化を行う。
 93行目のsession\_loop関数では、プレイヤーやサーバからの入力を監視するためのループを行う。
 109行目のif文以降では、標準入力から入力があった場合の処理を行う。
 標準入力からのキーの入力に対応する処理を表\ref{tab:player-key-mapping}に示す。
@@ -154,22 +154,22 @@ session.cであるリスト\ref{code:session.c}のプライベート関数につ
 \end{table}
 
 server.cであるリスト\ref{code:server.c}では、
-サーバ側のプログラムを立ち上げた時に、クライアント側からの通信を待ち、
-クライアントが2台接続したらゲームを開始するなどの一連の作業を行う。
+サーバ側のプログラムを立ち上げた時にクライアント側からの通信を待ち、
+2台のクライアントが接続したらゲームを開始するなどの一連の作業を行う。
 
 \lstset{ numbers = left }
 \lstinputlisting[caption=server.c,label=code:server.c]{../server.c}
 
 client.cであるリスト\ref{code:client.c}では、
-クライアント側のプログラムを立ち上げた時に、サーバにソケットで通信をするための処理を行い、
-ゲームのレンダリングやユーザ入力の処理などの一連の作業を行う。
+クライアント側のプログラムを立ち上げた時にサーバとソケット通信をするための処理を行い、
+ゲームでのレンダリングやユーザ入力の処理などの一連の作業を行う。
 
 \lstset{ numbers = left }
 \lstinputlisting[caption=client.c,label=code:client.c]{../client.c}
 
 最後に、作成したプログラムをコンパイルするMakefileをリスト\ref{code:Makefile}に示す。
 リスト\ref{code:Makefile}のMakefileを使ってmakeすると、binディレクトリの下にsとcという実行ファイルができる。
-なお、sとcはそれぞれサーバ用とクライアント用を表している。
+なお、sとcはそれぞれサーバ用とクライアント用の実行ファイルであることを表している。
 
 \lstset{ numbers = left }
 \lstinputlisting[caption=Makefile,label=code:Makefile]{../Makefile}
@@ -178,7 +178,7 @@ client.cであるリスト\ref{code:client.c}では、
 % ==============================================================================
 \section{実行結果}
 
-まずサーバ側でbin/sを実行してから、クライアント側となる2つ画面を用意してそれぞれでbin/cを実行した結果を
+まずサーバ側でbin/sを実行してからクライアント側となる2つ画面を用意して,それぞれでbin/cを実行した結果を
 図\ref{fig:game-start1.png}と\ref{fig:game-start2.png}に示す。
 
 % TODO: 実行結果の説明

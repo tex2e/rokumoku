@@ -2,3 +2,5 @@
 *.log
 *.fls
 *.aux
+nag.sty
+here.sty

@@ -202,7 +202,7 @@ client.cであるリスト\ref{code:client.c}では、
     \label{fig:game-start2.png}
   \end{minipage}
 \end{figure}
-図\ref{fig:game-start1.png}は後手番となったときのゲーム開始直後の画面である。対して、図\ref{fig:game-start2.png}は先手番となったときのゲーム開始直後の画面である。{\ttfamily It's your turn!}と表示されたことから判別ができる。この盤面から先手が1回打ったときの画面を図\ref{fig:put1-1.png}と\ref{fig:put1-2.png}に示す。
+図\ref{fig:game-start1.png}は後手番となったときのゲーム開始直後の画面である。対して、図\ref{fig:game-start2.png}は先手番となったときのゲーム開始直後の画面である。\texttt{It's your turn!}と表示されたことから判別ができる。この盤面から先手が1回打ったときの画面を図\ref{fig:put1-1.png}と\ref{fig:put1-2.png}に示す。
 
 \begin{figure}[H]
   \begin{minipage}{0.5\hsize}
@@ -217,7 +217,7 @@ client.cであるリスト\ref{code:client.c}では、
     \label{fig:put1-2.png}
   \end{minipage}
 \end{figure}
-図\ref{fig:put1-1.png}より、自分の手番となったことが確認できる。先手が表\ref{tab:player-key-mapping}に則って打ったことで、盤面の{\ttfamily .}が{\ttfamily o}に変わっていることが確認できる。図\ref{fig:put1-2.png}で表される先手は、先ほど打ったために自分の手番ではない。この盤面から後手が1回打ったときの画面を図\ref{fig:put2-1.png}と\ref{fig:put2-2.png}に示す。
+図\ref{fig:put1-1.png}より、自分の手番となったことが確認できる。先手が表\ref{tab:player-key-mapping}に則って打ったことで、盤面の\texttt{.}が\texttt{o}に変わっていることが確認できる。図\ref{fig:put1-2.png}で表される先手は、先ほど打ったために自分の手番ではない。この盤面から後手が1回打ったときの画面を図\ref{fig:put2-1.png}と\ref{fig:put2-2.png}に示す。
 
 \begin{figure}[H]
   \begin{minipage}{0.5\hsize}
@@ -232,7 +232,7 @@ client.cであるリスト\ref{code:client.c}では、
     \label{fig:put2-2.png}
   \end{minipage}
 \end{figure}
-図\ref{fig:put2-1.png}より、盤面の{\ttfamily .}が{\ttfamily x}に変わり、打てる回数である{\ttfamily remains}が2から1に減っていることが確認できる。図\ref{fig:put2-2.png}で表される先手は、自分の手番ではない。この盤面から後手が1回打ったときの画面を図\ref{fig:put3-1.png}と\ref{fig:put3-2.png}に示す。
+図\ref{fig:put2-1.png}より、盤面の\texttt{.}が\texttt{x}に変わり、打てる回数である\texttt{remains}が2から1に減っていることが確認できる。図\ref{fig:put2-2.png}で表される先手は、自分の手番ではない。この盤面から後手が1回打ったときの画面を図\ref{fig:put3-1.png}と\ref{fig:put3-2.png}に示す。
 
 \begin{figure}[H]
   \begin{minipage}{0.5\hsize}
@@ -247,7 +247,7 @@ client.cであるリスト\ref{code:client.c}では、
     \label{fig:put3-2.png}
   \end{minipage}
 \end{figure}
-図\ref{fig:put3-1.png}より、盤面の{\ttfamily .}が{\ttfamily x}に変わり、打てる回数である{\ttfamily remains}が0になったために先手の手番となったことが確認できる。図\ref{fig:put3-2.png}で表される先手は、後手が2回打ったために自分の手番となった。この局面から交互に2回ずつ打っていったときの盤面を図\ref{fig:fin-prev1-1.png}と\ref{fig:fin-prev1-2.png}に示す。
+図\ref{fig:put3-1.png}より、盤面の\texttt{.}が\texttt{x}に変わり、打てる回数である\texttt{remains}が0になったために先手の手番となったことが確認できる。図\ref{fig:put3-2.png}で表される先手は、後手が2回打ったために自分の手番となった。この局面から交互に2回ずつ打っていったときの盤面を図\ref{fig:fin-prev1-1.png}と\ref{fig:fin-prev1-2.png}に示す。
 
 \begin{figure}[H]
   \begin{minipage}{0.5\hsize}
@@ -277,7 +277,7 @@ client.cであるリスト\ref{code:client.c}では、
     \label{fig:fin-2.png}
   \end{minipage}
 \end{figure}
-図\ref{fig:fin-1.png}より、カーソルのある地点から左斜め下に向かって6つ{\ttfamily x}が並んでおり、{\ttfamily You win!}と表示されていることが確認できる。対して、図\ref{fig:fin-2.png}より、{\ttfamily You lose!}と表示されていることが確認できる。以上が作成した六目並べの一連の流れである。
+図\ref{fig:fin-1.png}より、カーソルのある地点から左斜め下に向かって6つ\texttt{x}が並んでおり、\texttt{You win!}と表示されていることが確認できる。対して、図\ref{fig:fin-2.png}より、\texttt{You lose!}と表示されていることが確認できる。以上が作成した六目並べの一連の流れである。
 
 % ==============================================================================
 \section{考察}
